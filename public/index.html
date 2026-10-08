@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Sala de Chat</title>
+        <style>
+            body {font-family: Arial, sans-serif; background: #f4f4f9; display: flex; justify-content: center; padding: 20px; }
+            #chat-container {width: 100%; max-width: 500px; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
+            #messages {list-style-type: none; margin: 0; padding: 20px; height: 300px; overflow-y: scroll; border-bottom: 1px solid #eee; }
+            #messages li {margin-bottom: 10px; padding: 8px 12px; background: #e9ecef; border-radius: 4px; }
+            #form {display: flex; padding: 10px; }
+            #input-name { width: 30%; padding: 10px; margin-right: 5px; border: 1px solid #ccc; border-radius: 4px; }
+            #input-message {flex: 1; padding: 10px; margin-right: 5px; border: 1px solid #ccc; border-radius: 4px; }
+            button { padding: 10px 15px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+            button:hover { background: #0056b3; }
+        </style>
+    </head>
+    <body>
+        <div id="chat-container">
+        <ul id="messages"></ul>
+        <form id="form">
+    <input id="input-name" placeholder="Tu nombre" required />
+    <input id="input-message" autocomplete="off" placeholder="Escribe un mensaje..." required />
+    <button>Enviar</button>
+    </form>
+</div>
+<!-- Libreria del cliente de Socket.IO -->
+ <script src="/socket.io/socket.io.js"></script>
+ <script>
+    const socket = io();
+
+    const form = document.getElementById('form');
+    const inputName = document.getElementById('input-name');
+    const inputMessage = document.getElementById('input-message');
+    const messages = document.getElementById('messages');
+    //Evento al enviar el formulario
+    form.addEventListener('submit',(e) => {
+        e.preventDefault();
+        if (inputMessage.value && inputName.value) {
+            socket.emit('mensaje', {
+                usuario: inputName.value,
+                texto: inputMessage.value
+            });
+            inputMessage.value = '';
+        }
+    });
+
+    // Recibir mensaje y mostraarlo en la lista
+    socket.on('mensaje', (data) => { 
+        const item = document.createElement('li');
+        item.textContent = `${data.usuario}: ${data.texto}`;
+        messages.appendChild(item);
+        messages.scrollTop = messages.scrollHeight;
+    });
+ </script>
+    </body>
+</html>
